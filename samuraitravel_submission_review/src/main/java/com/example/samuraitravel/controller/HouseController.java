@@ -2,6 +2,7 @@ package com.example.samuraitravel.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
@@ -12,16 +13,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.samuraitravel.entity.House;
+import com.example.samuraitravel.entity.Review;
 import com.example.samuraitravel.form.ReservationInputForm;
 import com.example.samuraitravel.repository.HouseRepository;
+import com.example.samuraitravel.repository.ReviewRepository;
 
 @Controller
 @RequestMapping("/houses")
 public class HouseController {
 	private final HouseRepository houseRepository;
+	private final ReviewRepository reviewRepository;
 	
-	public HouseController(HouseRepository houseRepository) {
+	public HouseController(HouseRepository houseRepository, ReviewRepository reviewRepository) {
 		this.houseRepository = houseRepository;
+		this.reviewRepository = reviewRepository;
 	}
 	
 	@GetMapping
@@ -71,10 +76,15 @@ public class HouseController {
 	}
 	
 	@GetMapping("/{id}")
-	public String show(@PathVariable(name = "id") Integer id, Model model) {
-		House house = houseRepository.getReferenceById(id);
+	public String show(@PathVariable(name = "id") Integer id, Model model, 
+					   @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		House house = houseRepository.findById(id).orElseThrow();
+		
+		// その民宿に紐づくレビューを「最大6件」取得する
+		Page<Review> latestReviews = reviewRepository.findByHouseId(id, pageable);
 		
 		model.addAttribute("house", house);
+		model.addAttribute("latestReviews", latestReviews.getContent());
 		model.addAttribute("reservationInputForm", new ReservationInputForm());
 		
 		return "houses/show";

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+
+<head>
+	<div th:replace="~{fragment :: meta}"></div>
+	<div th:replace="~{fragment :: styles}"></div>
+	<title>レビュー一覧</title>
+</head>
+
+<body>
+	<div class="samuraitravel-wrapper">
+		<!-- ヘッダー -->
+		<div th:replace="~{fragment :: header}"></div>
+
+		<main>
+			<div class="container pt-4 pb-5 samuraitravel-container">
+				<!-- パンくずリスト -->
+				<nav class="mb-4" style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+					<ol class="breadcrumb mb-0">
+						<li class="breadcrumb-item"><a th:href="@{/}">ホーム</a></li>
+						<li class="breadcrumb-item"><a th:href="@{/houses}">民宿一覧</a></li>
+						<li class="breadcrumb-item"><a th:href="@{/houses/{id}(id=${house.id})}">民宿詳細</a></li>
+						<li class="breadcrumb-item active" aria-current="page">レビュー一覧</li>
+					</ol>
+				</nav>
+
+				<!-- ページタイトル -->
+				<h2 class="mb-4 text-center" th:text="${house.name + 'のレビュー一覧'}">レビュー一覧</h2>
+
+				<!-- レビューカード -->
+				<div class="row justify-content-start">
+					<div class="col-md-6 mb-4" th:each="review : ${reviewPage.content}">
+						<div class="card p-3">
+							<!-- ユーザー名 -->
+							<div class="fw-bold" th:text="${review.user.name}">ユーザー名</div>
+
+							<!-- 評価 -->
+							<div class="text-warning mb-1">
+								<span th:utext="${'&#9733;'.repeat(review.rating)}"></span>
+								<span th:utext="${'&#9734;'.repeat(5 - review.rating)}"></span>
+							</div>
+
+							<!-- 投稿日 -->
+							<div class="text-muted small mb-1"
+								th:text="${#dates.format(review.createdAt, 'yyyy年MM月dd日')}">投稿日</div>
+
+							<!-- コメント -->
+							<div th:text="${review.comment}">コメント本文</div>
+
+							<!-- 編集リンク・削除リンクを表示 -->
+							<div sec:authorize="isAuthenticated()">
+								<div th:if="${review.user != null}">
+									<div th:if="${review.user.email == #authentication.name}" class="mt-2 text-end review-actions">
+										<a th:href="@{/reviews/edit/{id}(id=${review.id})}"
+											class="review-edit-link me-2">編集</a>
+										<a href="#" class="review-delete-link" data-bs-toggle="modal"
+											data-bs-target="#deleteReviewModal" th:data-review-id="${review.id}"
+											th:data-house-name="${house.name}">
+											削除
+										</a>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- ページネーション -->
+				<div th:if="${reviewPage.totalPages > 1}" class="d-flex justify-content-center">
+					<nav aria-label="レビュー一覧ページ">
+						<ul class="pagination">
+							<!-- 前のページ -->
+							<li class="page-item">
+								<span th:if="${reviewPage.first}" class="page-link disabled">前</span>
+								<a th:unless="${reviewPage.first}"
+									th:href="@{/reviews/house/{houseId}(houseId=${houseId}, page=${reviewPage.number - 1})}"
+									class="page-link">前</a>
+							</li>
+
+							<!-- ページ番号一覧 -->
+							<li class="page-item" th:each="i : ${#numbers.sequence(0, reviewPage.totalPages - 1)}">
+								<span th:if="${i == reviewPage.number}" class="page-link active"
+									th:text="${i + 1}"></span>
+								<a th:unless="${i == reviewPage.number}"
+									th:href="@{/reviews/house/{houseId}(houseId=${houseId}, page=${i})}"
+									class="page-link" th:text="${i + 1}"></a>
+							</li>
+
+							<!-- 次のページ -->
+							<li class="page-item">
+								<span th:if="${reviewPage.last}" class="page-link disabled">次</span>
+								<a th:unless="${reviewPage.last}"
+									th:href="@{/reviews/house/{houseId}(houseId=${houseId}, page=${reviewPage.number + 1})}"
+									class="page-link">次</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</main>
+
+		<!-- フッター -->
+		<div th:replace="~{fragment :: footer}"></div>
+	</div>
+
+	<div th:replace="~{fragment :: scripts}"></div>
+
+	<div class="modal fade" id="deleteReviewModal" tabindex="-1" aria-labelledby="deleteReviewModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog">
+			<form id="deleteReviewForm" method="post" th:action="@{/reviews/delete/0}">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="deleteReviewModalLabel">レビュー削除確認</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="閉じる"></button>
+					</div>
+					<div class="modal-body">
+						<p id="deleteConfirmMessage">このレビューを削除してもよろしいですか？</p>
+					</div>
+					<div class="modal-footer">
+						<input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">キャンセル</button>
+						<button type="submit" class="btn btn-danger">削除</button>
+					</div>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const deleteReviewModal = document.getElementById('deleteReviewModal');
+			deleteReviewModal.addEventListener('show.bs.modal', function (event) {
+				const button = event.relatedTarget;
+				const reviewId = button.getAttribute('data-review-id');
+				const houseName = button.getAttribute('data-house-name');
+
+				const confirmMessage = document.getElementById('deleteConfirmMessage');
+				confirmMessage.textContent = `${houseName}のレビューを削除してもよろしいですか？`;
+
+				const form = document.getElementById('deleteReviewForm');
+				const actionUrl = `/reviews/delete/${reviewId}`;
+				form.setAttribute('action', actionUrl);
+
+				console.log("reviewId:", reviewId);
+				console.log("form action set to:", actionUrl);
+			});
+		});
+	</script>
+</body>
+
+</html>

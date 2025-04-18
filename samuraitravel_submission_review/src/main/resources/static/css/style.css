@@ -131,3 +131,41 @@ footer {
    max-width: 1200px;
  }
 }
+
+.card {
+	position: relative;
+}
+
+.review-actions {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+}
+
+.review-actions a {
+	border: none;
+}
+
+.review-edit-link {
+	color: #95acbd;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.review-edit-link:hover {
+	text-decoration: underline;
+}
+
+.review-delete-link {
+	color: #e06666;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.review-delete-link:hover {
+	text-decoration: underline;
+}
+
+.review-card {
+	min-height: 150px;
+}

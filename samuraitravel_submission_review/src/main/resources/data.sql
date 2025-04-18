@@ -85,3 +85,16 @@ INSERT IGNORE INTO reservations (id, house_id, user_id, checkin_date, checkout_d
 INSERT IGNORE INTO reservations (id, house_id, user_id, checkin_date, checkout_date, number_of_people, amount) VALUES (9, 9, 1, '2023-04-01', '2023-04-02', 5, 9000);
 INSERT IGNORE INTO reservations (id, house_id, user_id, checkin_date, checkout_date, number_of_people, amount) VALUES (10, 10, 1, '2023-04-01', '2023-04-02', 6, 10000);
 INSERT IGNORE INTO reservations (id, house_id, user_id, checkin_date, checkout_date, number_of_people, amount) VALUES (11, 11, 1, '2023-04-01', '2023-04-02', 2, 6000);
+
+-- reviewsテーブル
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (1, 1, 1, 4, '部屋が綺麗で、快適に過ごせました。');
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (2, 1, 2, 4, 'アクセスが良く、観光に最適でした。');
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (3, 1, 3, 5, 'スタッフが親切で、気持ちよく滞在できました。');
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (4, 1, 4, 4, '駅から近く、便利でした。');
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (5, 1, 5, 5, '周辺の飲食店が充実していて、楽しめました。');
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (6, 1, 6, 4, '宿泊費が手頃で、コストパフォーマンスが良かったです。');
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (7, 1, 7, 3, '静かな環境でゆっくり休めました。');
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (8, 1, 8, 4, '施設内の設備が充実していました。');
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (9, 1, 9, 5, 'Wi-Fiが快適で助かりました。');
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (10, 1, 10, 4, '清潔感があり、気持ちよく滞在できました。');
+INSERT IGNORE INTO reviews (id, house_id, user_id, rating, comment) VALUES (11, 1, 11, 5, '最高の休日を過ごすことができました。');
