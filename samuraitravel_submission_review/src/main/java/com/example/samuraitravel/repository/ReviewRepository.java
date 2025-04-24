@@ -12,5 +12,9 @@ public interface ReviewRepository extends JpaRepository<Review, Integer>{
 	@EntityGraph(attributePaths = "user")
 	Page<Review> findByHouseId(Integer houseId, Pageable pageable);
 	
+	boolean existsByUserIdAndHouseId(Integer userId, Integer houseId);
+	
+	long countByHouseId(Integer houseId);
+	
 
 }
