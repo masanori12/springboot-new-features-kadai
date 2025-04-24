@@ -28,8 +28,8 @@
 				<h2 class="mb-4 text-center" th:text="${house.name + 'のレビュー一覧'}">レビュー一覧</h2>
 
 				<!-- レビューカード -->
-				<div class="row justify-content-start">
-					<div class="col-md-6 mb-4" th:each="review : ${reviewPage.content}">
+				<div class="row justify-content-center">
+					<div class="col-md-5 mb-4" th:each="review : ${reviewPage.content}">
 						<div class="card p-3">
 							<!-- ユーザー名 -->
 							<div class="fw-bold" th:text="${review.user.name}">ユーザー名</div>
