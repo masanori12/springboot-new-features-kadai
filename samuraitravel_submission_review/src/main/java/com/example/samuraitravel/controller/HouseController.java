@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +15,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.samuraitravel.entity.House;
 import com.example.samuraitravel.entity.Review;
+import com.example.samuraitravel.entity.User;
 import com.example.samuraitravel.form.ReservationInputForm;
 import com.example.samuraitravel.repository.HouseRepository;
 import com.example.samuraitravel.repository.ReviewRepository;
+import com.example.samuraitravel.security.UserDetailsImpl;
 
 @Controller
 @RequestMapping("/houses")
@@ -77,15 +80,30 @@ public class HouseController {
 	
 	@GetMapping("/{id}")
 	public String show(@PathVariable(name = "id") Integer id, Model model, 
-					   @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+					   @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+					   @AuthenticationPrincipal UserDetailsImpl userDetails) {
 		House house = houseRepository.findById(id).orElseThrow();
 		
 		// その民宿に紐づくレビューを「最大6件」取得する
 		Page<Review> latestReviews = reviewRepository.findByHouseId(id, pageable);
 		
+		// レビューの総数を取得
+		long reviewCount = reviewRepository.countByHouseId(id);
+		
 		model.addAttribute("house", house);
 		model.addAttribute("latestReviews", latestReviews.getContent());
+		model.addAttribute("reviewCount", reviewCount);
 		model.addAttribute("reservationInputForm", new ReservationInputForm());
+		
+		// レビュー投稿済みかチェック
+		boolean hasReviewed = false;
+		if (userDetails != null) {
+			User user = userDetails.getUser();
+			hasReviewed = reviewRepository.existsByUserIdAndHouseId(user.getId(), id);
+		}
+		
+		model.addAttribute("hasReviewed", hasReviewed);
+		
 		
 		return "houses/show";
 	}
