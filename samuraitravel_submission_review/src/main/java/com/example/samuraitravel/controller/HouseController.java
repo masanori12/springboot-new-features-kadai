@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.samuraitravel.entity.House;
 import com.example.samuraitravel.entity.Review;
@@ -82,7 +84,8 @@ public class HouseController {
 	public String show(@PathVariable(name = "id") Integer id, Model model, 
 					   @PageableDefault(size = 6, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
 					   @AuthenticationPrincipal UserDetailsImpl userDetails) {
-		House house = houseRepository.findById(id).orElseThrow();
+		House house = houseRepository.findById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		
 		// その民宿に紐づくレビューを「最大6件」取得する
 		Page<Review> latestReviews = reviewRepository.findByHouseId(id, pageable);
